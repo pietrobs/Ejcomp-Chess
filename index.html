@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<meta http-equiv="content-type" content="text/html;characterset=utf-8" />
+	<title>EJCOMPERS CHESS</title>
+	<script src="entities/Tabuleiro.js"></script>
+	<script src="entities/Piece.js"></script>
+	<script src="entities/Peao.js"></script>
+	<script src="entities/Rei.js"></script>
+	<script src="entities/Rainha.js"></script>
+	<script src="entities/Bispo.js"></script>
+	<script src="entities/Cavalo.js"></script>
+	<script src="entities/Torre.js"></script>
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-image: url('https://c.wallhere.com/photos/3a/10/wood_old_shadow_brown_abstract_tree_texture_nature-787950.jpg!d');
+			background-size: cover;
+			background-repeat: repeat-y;
+			max-height: 100vh;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas width="650" height="650"></canvas>
+
+	<script>
+
+		(function () {
+
+			console.log("EJCOMP CHESS");
+			console.log("por: Pietro B Schiavinato");
+
+
+			var cnv = document.querySelector('canvas');
+			var ctx = cnv.getContext('2d');
+
+			//globais
+			let piece = null;
+			let podeMover = true;
+			var sprites = [];
+
+			createPieces();
+
+			cnv.addEventListener('click', function (e) {
+
+				if (piece == null) {
+					podeMover = true;
+					
+					verificaPecaClicada(e);
+					
+				} else {
+					sprites.forEach((spr, index) => {
+						if (spr instanceof Piece && spr.verificaClique(e.x, e.y) && index != piece) {
+							//Existe alguma peça no espaço que foi clicado para mover
+							//Criar lógica para "comer" peça
+							podeMover = false;
+						}
+					});
+
+					if (podeMover) {
+						sprites[piece].mover(e.x, e.y);
+					}else{
+						alert("Ai não da pra mover, implemente MATAR PEÇAS - ia ficar esquisito eu usar a palavra COMER aqui já que é nóis as peças")
+					}
+
+					piece = null;
+					hasPiece = false;
+				}
+
+			}, false);
+
+			function loop() {
+				window.requestAnimationFrame(loop, cnv);
+				update();
+				render();
+			}
+
+			function update() {
+				//do nothing
+			}
+
+			function render() {
+				ctx.save();
+
+
+				sprites.forEach((spr) => {
+					ctx.drawImage(spr.attr.img, spr.attr.positionx, spr.attr.positiony, spr.attr.width, spr.attr.height, spr.attr.x, spr.attr.y, spr.attr.width, spr.attr.height);
+				});
+
+				if (piece != null) {
+					ctx.beginPath();
+					ctx.lineWidth = "4";
+					ctx.strokeStyle = sprites[piece].getTeam() == 0 ? "green" : "yellow";
+					ctx.rect(sprites[piece].getX() + 2, sprites[piece].getY() + 2, 56, 56);
+					ctx.stroke();
+				} else {
+
+				}
+
+				ctx.restore();
+			}
+
+			loop();
+
+			function createPieces() {
+
+				sprites.push(new Tabuleiro("assets/scene/tabuleiro.jpg", 1000, 1000));
+
+				for (let count = 0; count < 10; count++) {
+					sprites.push(new Peao("assets/pieces/pietro-preto.png", 60, 60, count * 60, 60, 0, ctx));
+					sprites.push(new Peao("assets/pieces/pietro-vermelho.png", 60, 60, count * 60, 480, 1, ctx));
+				}
+
+				sprites.push(new Rei("assets/pieces/palmeira-preto.png", 60, 60, 300, 0, 0, ctx));
+				sprites.push(new Rei("assets/pieces/palmeira-vermelho.png", 60, 60, 240, 540, 1, ctx));
+
+				sprites.push(new Rainha("assets/pieces/giulia-preto.png", 60, 60, 240, 0, 0, ctx));
+				sprites.push(new Rainha("assets/pieces/giulia-vermelho.png", 60, 60, 300, 540, 1, ctx));
+
+				sprites.push(new Torre("assets/pieces/luquinha-preto.png", 60, 60, 0, 0, 0, ctx));
+				sprites.push(new Torre("assets/pieces/luquinha-preto.png", 60, 60, 540, 0, 0, ctx));
+
+				sprites.push(new Torre("assets/pieces/luquinha-vermelho.png", 60, 60, 0, 540, 1, ctx));
+				sprites.push(new Torre("assets/pieces/luquinha-vermelho.png", 60, 60, 540, 540, 1, ctx));
+
+				sprites.push(new Cavalo("assets/pieces/obelas-preto.png", 60, 60, 120, 0, 0, ctx));
+				sprites.push(new Cavalo("assets/pieces/obelas-preto.png", 60, 60, 420, 0, 0, ctx));
+
+				sprites.push(new Cavalo("assets/pieces/obelas-vermelho.png", 60, 60, 120, 540, 1, ctx));
+				sprites.push(new Cavalo("assets/pieces/obelas-vermelho.png", 60, 60, 420, 540, 1, ctx));
+
+			}
+
+			function verificaPecaClicada(e){
+				sprites.forEach((spr, index) => {
+						if (spr instanceof Piece && piece == null) {
+							if (spr.verificaClique(e.x, e.y)) {
+								piece = index;
+							} else {
+								piece = null;
+							}
+						}
+					});
+			}
+
+		}());
+
+	</script>
+</body>
+
+</html>
